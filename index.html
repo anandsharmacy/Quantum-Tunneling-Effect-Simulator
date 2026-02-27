@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Tunneling Effect Simulator – NMIMS</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/main.js" defer></script>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-wrap">
+            <div class="shield"><span>NMIMS</span><small>EST. 1981</small></div>
+            <div class="logo-meta">
+                <strong>NMIMS University</strong>
+                School of Technology<br>Management &amp; Engineering<br>Hyderabad Campus
+            </div>
+        </div>
+        <div class="header-center">
+            <h1>Quantum Tunneling Effect Simulator</h1>
+        </div>
+    </header>
+
+    <div class="body">
+
+        <!-- Left nav -->
+        <nav class="left-nav">
+            <button class="nav-item active" id="btn-info">Info</button>
+            <button class="nav-item" id="btn-equation">Equation used</button>
+            <button class="nav-item" id="btn-working">Working Process</button>
+        </nav>
+
+        <!-- Center -->
+        <div class="center">
+            <div class="sim-wrap" id="sim-wrap">
+                <canvas id="simCanvas"></canvas>
+
+                <!-- Info -->
+                <div class="panel active" id="panel-info">
+                    <h2>About Quantum Tunneling</h2>
+                    <p>Quantum tunneling is a quantum mechanical phenomenon where a particle passes through a potential
+                        energy barrier that classical physics would deem impenetrable. It arises because particles
+                        exhibit wave-like behavior governed by the Schrödinger equation — the wavefunction ψ has a
+                        non-zero amplitude on both sides of the barrier.</p>
+                    <p>The simulation displays the <strong style="color:#e74c3c">real part ℜ(ψ)</strong> in red and the
+                        <strong style="color:#1a3fbf">imaginary part ℑ(ψ)</strong> in dark blue, along with the <strong
+                            style="color:#6b8cae">potential V(x)</strong> in steel-blue.
+                    </p>
+                    <h3>Real-World Applications</h3>
+                    <p>Nuclear fusion in stars · Scanning Tunneling Microscopes (STM) · Tunnel diodes · Flash memory
+                        (NAND) · Enzyme catalysis · Alpha decay</p>
+                    <h3>About this Simulator</h3>
+                    <p>The TDSE is solved with the <strong>Crank–Nicolson</strong> implicit scheme — unconditionally
+                        stable, unitary (norm-preserving), and 2nd-order accurate in both Δx and Δt.</p>
+                    <p style="font-size:.74rem;color:var(--text3);margin-top:12px">Press <strong
+                            style="color:var(--red)">▶ Simulator</strong> on the right to view the live wavepacket
+                        animation.</p>
+                </div>
+
+                <!-- Equation -->
+                <div class="panel" id="panel-equation">
+                    <h2>Equations Used</h2>
+                    <h3>Time-Dependent Schrödinger Equation</h3>
+                    <div class="eq"><span class="eq-lbl">Governing equation</span>iℏ ∂ψ/∂t = Ĥψ = [−ℏ²/2m · ∂²/∂x² +
+                        V(x)] ψ</div>
+                    <h3>Crank–Nicolson Scheme</h3>
+                    <div class="eq"><span class="eq-lbl">CN update (α = Δt/2ℏ)</span>(I + iα·Ĥ) ψⁿ⁺¹ = (I − iα·Ĥ) ψⁿ
+                    </div>
+                    <h3>Initial Gaussian Wavepacket</h3>
+                    <div class="eq"><span class="eq-lbl">ψ(x,0)</span>ψ = (2πσ²)^(−1/4) · exp[−(x−x₀)²/4σ²] · e^(ik₀x)
+                    </div>
+                    <h3>Transmission &amp; Reflection</h3>
+                    <div class="eq"><span class="eq-lbl">Probabilities</span>T = ∫_{x&gt;x_R} |ψ|² dx &nbsp;|&nbsp; R =
+                        ∫_{x&lt;x_L} |ψ|² dx</div>
+                    <h3>WKB Estimate (rectangular barrier)</h3>
+                    <div class="eq"><span class="eq-lbl">Tunneling probability</span>T ≈ exp[−2L √(2m(V₀−E)) / ℏ]</div>
+                </div>
+
+                <!-- Working Process -->
+                <div class="panel" id="panel-working">
+                    <h2>How the Simulator Works</h2>
+                    <ol class="steps">
+                        <li><strong>Grid init:</strong> N = 700 uniform points over x ∈ [−160, 160], ℏ = m = 1.</li>
+                        <li><strong>Potential V(x):</strong> Chosen barrier profile evaluated on the grid.</li>
+                        <li><strong>Wavepacket:</strong> Normalised Gaussian ψ(x,0) with momentum k₀ and spread σ,
+                            placed at x₀ = −100.</li>
+                        <li><strong>Hamiltonian:</strong> Kinetic energy via central differences → tridiagonal matrix H
+                            with V(x) on diagonal.</li>
+                        <li><strong>CN matrices:</strong> A = I + iαH, B = I − iαH assembled; Thomas forward-sweep
+                            precomputed once.</li>
+                        <li><strong>Time loop:</strong> (1) RHS = B·ψⁿ, (2) solve A·ψⁿ⁺¹ = RHS via Thomas O(N), (3)
+                            renormalise every 40 steps.</li>
+                        <li><strong>Rendering:</strong> ℜ(ψ) red, ℑ(ψ) dark blue, V(x) steel-blue — matplotlib-style
+                            with grid, y-axis, and legend.</li>
+                        <li><strong>Readouts:</strong> T and R computed by integrating |ψ|² over right/left domains in
+                            real time.</li>
+                    </ol>
+                </div>
+
+                <!-- Height toast (inside sim-wrap for positioning) -->
+                <div class="height-toast" id="height-toast">
+                    <button class="toast-close" id="btn-close-toast">✕</button>
+                    <div class="toast-title" id="toast-title"><span class="toast-star">⭐</span><span
+                            id="toast-title-text">Effect of changing barrier height</span></div>
+                    <div id="toast-body"></div>
+                </div>
+            </div>
+
+            <!-- Stats bar -->
+            <div class="stats-bar">
+                <div class="si">
+                    <div class="si-lbl">Transmission T</div>
+                    <div class="si-val vT" id="sT">—</div>
+                </div>
+                <div class="si">
+                    <div class="si-lbl">Reflection R</div>
+                    <div class="si-val vR" id="sR">—</div>
+                </div>
+                <div class="si">
+                    <div class="si-lbl">Energy E</div>
+                    <div class="si-val vE" id="sE">—</div>
+                </div>
+                <div class="si">
+                    <div class="si-lbl">Norm ‖ψ‖²</div>
+                    <div class="si-val vN" id="sN">1.000</div>
+                </div>
+                <div class="prob-wrap">
+                    <div class="prob-lbl">T vs R split</div>
+                    <div class="prob-track">
+                        <div class="bT" id="bT" style="width:0%"></div>
+                        <div class="bR" id="bR" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="tinfo">t = <span id="tDisp">0.0</span> &nbsp;|&nbsp; step <span id="stDisp">0</span></div>
+            </div>
+        </div>
+
+        <!-- Right controls -->
+        <div class="right-ctrl">
+            <div style="display:flex; gap:8px;">
+                <button class="rbtn" id="btn-simulator" style="flex:1;">▶ Simulator</button>
+                <button class="rbtn gray" id="btn-stop" style="flex:1;">■ Stop</button>
+            </div>
+
+            <!-- HEIGHT POTENTIAL — live +/- control -->
+            <div class="height-btn-group">
+                <div class="height-label">
+                    <span style="font-size:.65rem;letter-spacing:.06em;opacity:.85">HEIGHT (POTENTIAL)</span>
+                    <span class="v0-display">V₀ = <span id="v0-live">1.00</span></span>
+                </div>
+                <div class="height-actions">
+                    <button class="h-btn h-btn-dec" id="btn-dec-height" title="Decrease barrier height">
+                        <div style="display:flex;flex-direction:column;align-items:center">
+                            <span style="font-size:1.4rem;line-height:1">−</span>
+                            <span>Lower</span>
+                        </div>
+                    </button>
+                    <button class="h-btn h-btn-inc" id="btn-inc-height" title="Increase barrier height">
+                        <div style="display:flex;flex-direction:column;align-items:center">
+                            <span style="font-size:1.4rem;line-height:1">+</span>
+                            <span>Raise</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SPEED — live +/- control -->
+            <div class="height-btn-group" style="box-shadow:0 3px 10px rgba(41,128,185,.28);">
+                <div class="speed-label">
+                    <span style="font-size:.65rem;letter-spacing:.06em;opacity:.85">SPEED</span>
+                    <span class="v0-display"><span id="spd-live">4</span>x</span>
+                </div>
+                <div class="height-actions">
+                    <button class="h-btn s-btn-dec" id="btn-dec-speed" title="Decrease speed">
+                        <div style="display:flex;flex-direction:column;align-items:center">
+                            <span style="font-size:1.4rem;line-height:1">−</span>
+                            <span>Slower</span>
+                        </div>
+                    </button>
+                    <button class="h-btn s-btn-inc" id="btn-inc-speed" title="Increase speed">
+                        <div style="display:flex;flex-direction:column;align-items:center">
+                            <span style="font-size:1.4rem;line-height:1">+</span>
+                            <span>Faster</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                <button class="rbtn gray" id="btn-zoom-in" style="flex:1; font-size:0.75rem; padding:10px 4px;">Zoom
+                    In</button>
+                <button class="rbtn gray" id="btn-zoom-out" style="flex:1; font-size:0.75rem; padding:10px 4px;">Zoom
+                    Out</button>
+                <button class="rbtn gray" id="btn-zoom-reset"
+                    style="flex:1; font-size:0.75rem; padding:10px 4px;">Recenter</button>
+            </div>
+
+            <button class="rbtn" id="btn-open-width">Width (L)</button>
+            <button class="rbtn gray" id="btn-reset">RESET</button>
+            <button class="rbtn" id="btn-open-mode">
+                Time Dependent /<br>Independent<br>
+                <span class="mbadge" id="modeBadge">T-DEPENDENT</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Width modal -->
+    <div class="backdrop" id="m-width">
+        <div class="modal">
+            <button class="mclose" id="btn-close-width">✕</button>
+            <h3>Barrier Width &amp; Type</h3>
+            <div class="mrow">
+                <label>Barrier type</label>
+                <select id="i-pot">
+                    <option value="single">Single Rectangular Barrier</option>
+                    <option value="double">Double Slit</option>
+                    <option value="step">Potential Step</option>
+                    <option value="delta">Delta-like</option>
+                    <option value="none">Free Particle (no barrier)</option>
+                </select>
+            </div>
+            <div class="mrow">
+                <label>Barrier width w <span id="v-Vw">20</span></label>
+                <input type="range" id="i-Vw" min="2" max="60" step="1" value="20">
+            </div>
+            <div class="mrow">
+                <label>Momentum k₀ <span id="v-k0">1.20</span></label>
+                <input type="range" id="i-k0" min="0.3" max="3.0" step="0.05" value="1.2">
+            </div>
+            <div class="mrow">
+                <label>Wavepacket spread σ <span id="v-sig">5.0</span></label>
+                <input type="range" id="i-sig" min="2" max="14" step="0.5" value="5">
+            </div>
+            <div class="mrow">
+                <label>Sim speed (steps/frame) <span id="v-spd">4</span></label>
+                <input type="range" id="i-spd" min="1" max="16" step="1" value="4">
+            </div>
+            <div class="mactions">
+                <button class="mok" id="btn-apply-width">Apply</button>
+                <button class="mcancel" id="btn-cancel-width">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode modal -->
+    <div class="backdrop" id="m-mode">
+        <div class="modal">
+            <button class="mclose" id="btn-close-mode">✕</button>
+            <h3>Simulation Mode</h3>
+            <div class="mrow">
+                <label>Select mode</label>
+                <select id="i-mode">
+                    <option value="td">Time-Dependent (wavepacket evolution)</option>
+                    <option value="ti">Time-Independent (frozen snapshot)</option>
+                </select>
+            </div>
+            <p style="font-size:.74rem;color:var(--text3);margin-top:8px;line-height:1.65">
+                <strong style="color:var(--text2)">Time-Dependent:</strong> Full CN propagation, wavepacket evolves in
+                real time.<br><br>
+                <strong style="color:var(--text2)">Time-Independent:</strong> Pauses evolution — static analysis of T
+                and R.
+            </p>
+            <div class="mactions">
+                <button class="mok" id="btn-apply-mode">Apply</button>
+                <button class="mcancel" id="btn-cancel-mode">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

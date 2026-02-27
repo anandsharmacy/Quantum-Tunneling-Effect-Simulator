@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Tunneling Effect Simulator – NMIMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #c0392b; --red-h: #a93226; --red-l: #e74c3c;
+    --gray: #4a4e54; --gray-h: #5c6068;
+    --white: #fff; --off: #f4f5f7; --border: #dde0e6;
+    --text: #1a1a2e; --text2: #4a4a6a; --text3: #9a9ab0;
+    --blue: #2980b9; --green: #27ae60;
+  }
+  body { font-family:'Inter',sans-serif; background:var(--off); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+  /* Header */
+  header {
+    background:var(--white); border-bottom:2px solid var(--border);
+    padding:10px 24px; display:flex; align-items:center;
+    box-shadow:0 2px 8px rgba(0,0,0,0.07); flex-shrink:0;
+  }
+  .logo-wrap { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .shield { width:46px; height:52px; background:var(--red); border-radius:4px 4px 22px 22px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; box-shadow:0 2px 6px rgba(192,57,43,.35); }
+  .shield span { color:#fff; font-weight:800; font-size:.72rem; letter-spacing:.06em; line-height:1; }
+  .shield small { color:rgba(255,255,255,.75); font-size:.42rem; letter-spacing:.08em; }
+  .logo-meta { border-left:3px solid var(--red); padding-left:10px; font-size:.6rem; line-height:1.5; color:var(--text2); font-weight:500; }
+  .logo-meta strong { display:block; font-size:.68rem; font-weight:700; color:var(--text); }
+  .header-center { flex:1; text-align:center; }
+  .header-center h1 { font-size:1.45rem; font-weight:700; letter-spacing:-.01em; }
+
+  /* Body */
+  .body { flex:1; display:flex; padding:14px; gap:14px; min-height:0; overflow:hidden; }
+
+  /* Left nav */
+  .left-nav { width:170px; flex-shrink:0; background:var(--gray); border-radius:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+  .nav-item { flex:1; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.82); font-size:.88rem; font-weight:500; cursor:pointer; border:none; background:transparent; transition:background .18s,color .18s; text-align:center; letter-spacing:.01em; position:relative; }
+  .nav-item::after { content:''; position:absolute; bottom:0; left:18px; right:18px; height:1px; background:rgba(255,255,255,.1); }
+  .nav-item:last-child::after { display:none; }
+  .nav-item:hover { background:var(--gray-h); color:#fff; }
+  .nav-item.active { background:var(--red); color:#fff; }
+
+  /* Center */
+  .center { flex:1; display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .sim-wrap { flex:1; position:relative; background:var(--white); border-radius:12px; border:1.5px solid var(--border); overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); min-height:0; }
+  canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+
+  /* Info overlays */
+  .panel { display:none; position:absolute; inset:0; background:rgba(255,255,255,.98); overflow-y:auto; padding:26px 30px; z-index:10; }
+  .panel.active { display:block; }
+  .panel h2 { font-size:1.1rem; font-weight:700; color:var(--red); padding-bottom:9px; border-bottom:2px solid var(--border); margin-bottom:14px; }
+  .panel p { font-size:.81rem; line-height:1.78; color:var(--text2); margin-bottom:9px; }
+  .panel h3 { font-size:.86rem; font-weight:600; color:var(--text); margin:14px 0 5px; }
+  .eq { background:var(--off); border-left:3px solid var(--red); border-radius:6px; padding:11px 14px; margin:9px 0; font-family:'Crimson Pro',serif; font-size:1.06rem; color:var(--text); line-height:1.9; }
+  .eq-lbl { font-family:'Inter',sans-serif; font-size:.57rem; text-transform:uppercase; letter-spacing:.15em; color:var(--text3); display:block; margin-bottom:3px; }
+  .steps { list-style:none; counter-reset:s; }
+  .steps li { counter-increment:s; display:flex; gap:12px; margin-bottom:11px; font-size:.8rem; color:var(--text2); line-height:1.65; align-items:flex-start; }
+  .steps li::before { content:counter(s); background:var(--red); color:#fff; font-size:.67rem; font-weight:700; width:21px; height:21px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+
+  /* Stats bar */
+  .stats-bar { background:var(--white); border:1.5px solid var(--border); border-radius:10px; padding:9px 16px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; box-shadow:0 1px 6px rgba(0,0,0,.05); flex-shrink:0; }
+  .si { display:flex; flex-direction:column; align-items:center; gap:1px; min-width:58px; }
+  .si-lbl { font-size:.5rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text3); }
+  .si-val { font-size:1rem; font-weight:700; font-family:'Crimson Pro',serif; }
+  .vT { color:var(--green); } .vR { color:var(--red); } .vE { color:var(--blue); } .vN { color:var(--text); }
+  .prob-wrap { flex:1; min-width:90px; }
+  .prob-lbl { font-size:.5rem; letter-spacing:.12em; text-transform:uppercase; color:var(--text3); margin-bottom:4px; }
+  .prob-track { height:6px; background:#eaecf0; border-radius:4px; overflow:hidden; display:flex; }
+  .bT { height:100%; background:linear-gradient(90deg,#27ae60,#2ecc71); transition:width .2s; }
+  .bR { height:100%; background:linear-gradient(90deg,var(--red),var(--red-l)); transition:width .2s; }
+  .tinfo { margin-left:auto; font-size:.67rem; color:var(--text3); font-family:'Crimson Pro',serif; white-space:nowrap; }
+  .tinfo span { color:var(--text); font-weight:600; }
+
+  /* Right controls */
+  .right-ctrl { width:182px; flex-shrink:0; display:flex; flex-direction:column; gap:10px; }
+  .rbtn { background:var(--red); color:#fff; border:none; border-radius:14px; padding:15px 12px; font-size:.83rem; font-weight:600; cursor:pointer; text-align:center; line-height:1.3; transition:background .14s,transform .1s,box-shadow .14s; box-shadow:0 3px 10px rgba(192,57,43,.28); }
+  .rbtn:hover { background:var(--red-l); box-shadow:0 4px 16px rgba(192,57,43,.38); transform:translateY(-1px); }
+  .rbtn:active { transform:translateY(0); }
+  .rbtn.gray { background:var(--gray); box-shadow:0 3px 10px rgba(0,0,0,.12); }
+  .rbtn.gray:hover { background:var(--gray-h); }
+  .mbadge { display:inline-block; margin-top:3px; font-size:.56rem; padding:2px 8px; border-radius:20px; background:rgba(255,255,255,.22); letter-spacing:.1em; }
+
+  /* ═══ HEIGHT BUTTON — split +/- design ═══ */
+  .height-btn-group { display:flex; flex-direction:column; gap:0; border-radius:14px; overflow:hidden; box-shadow:0 3px 10px rgba(192,57,43,.28); }
+  .height-label {
+    background:var(--red); color:#fff; padding:9px 12px 4px;
+    font-size:.72rem; font-weight:600; text-align:center;
+    letter-spacing:.03em; cursor:default;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .height-label .v0-display {
+    font-family:'Crimson Pro',serif; font-size:1.05rem; font-weight:700;
+    color:rgba(255,255,255,0.95);
+  }
+  .height-actions { display:flex; }
+  .h-btn {
+    flex:1; border:none; cursor:pointer; padding:11px 6px;
+    font-size:1.3rem; font-weight:700; color:#fff;
+    transition:background .14s, transform .1s;
+    display:flex; align-items:center; justify-content:center; gap:4px;
+    line-height:1;
+  }
+  .h-btn-dec { background:#a93226; border-right:1px solid rgba(255,255,255,.15); }
+  .h-btn-inc { background:#c0392b; }
+  .h-btn-dec:hover { background:#922b21; transform:scale(1.04); }
+  .h-btn-inc:hover { background:#e74c3c; transform:scale(1.04); }
+  .h-btn:active { transform:scale(0.97); }
+  .h-btn span { font-size:.62rem; font-weight:500; opacity:.85; margin-top:2px; }
+
+  /* ─── Height info toast ─── */
+  .height-toast {
+    position:absolute; bottom:56px; right:0; width:260px;
+    background:#1a1d23; color:#e8edf5; border-radius:12px;
+    padding:16px; z-index:50; box-shadow:0 8px 28px rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.1);
+    transition:opacity .25s, transform .25s;
+    opacity:0; transform:translateY(8px); pointer-events:none;
+  }
+  .height-toast.show { opacity:1; transform:translateY(0); pointer-events:auto; }
+  .toast-title {
+    font-size:.75rem; font-weight:700; margin-bottom:10px;
+    padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,.1);
+    display:flex; align-items:center; gap:6px;
+  }
+  .toast-title.inc { color:#ff6b6b; }
+  .toast-title.dec { color:#69d7a0; }
+  .toast-star { font-size:.9rem; }
+  .toast-list { list-style:none; margin-bottom:10px; }
+  .toast-list li { font-size:.72rem; line-height:1.6; padding:2px 0; color:rgba(232,237,245,.85); display:flex; gap:6px; }
+  .toast-list li .num { color:#ffb347; font-weight:700; min-width:14px; }
+  .toast-section { margin-bottom:8px; }
+  .toast-section-title { font-size:.65rem; font-weight:700; color:#a0b4cc; text-transform:uppercase; letter-spacing:.1em; margin-bottom:5px; }
+  .toast-bullet { font-size:.72rem; line-height:1.6; color:rgba(232,237,245,.85); display:flex; gap:6px; align-items:flex-start; margin-bottom:3px; }
+  .toast-bullet .icon { font-size:.82rem; flex-shrink:0; }
+  .toast-bold { font-weight:700; color:#fff; }
+  .toast-cond { font-size:.7rem; font-weight:600; color:#ffd580; margin:6px 0 3px; font-family:'Crimson Pro',serif; font-style:italic; }
+  .toast-close { position:absolute; top:10px; right:10px; background:none; border:none; color:rgba(255,255,255,.4); cursor:pointer; font-size:.9rem; line-height:1; padding:2px; }
+  .toast-close:hover { color:#fff; }
+
+  /* Modal */
+  .backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.38); z-index:200; align-items:center; justify-content:center; }
+  .backdrop.open { display:flex; }
+  .modal { background:var(--white); border-radius:16px; padding:24px 28px; width:340px; box-shadow:0 14px 44px rgba(0,0,0,.22); position:relative; }
+  .modal h3 { font-size:.98rem; font-weight:700; margin-bottom:16px; color:var(--text); border-bottom:2px solid var(--red); padding-bottom:8px; }
+  .mrow { margin-bottom:14px; }
+  .mrow label { display:flex; justify-content:space-between; font-size:.76rem; color:var(--text2); margin-bottom:5px; font-weight:500; }
+  .mrow label span { color:var(--red); font-weight:700; }
+  input[type=range] { width:100%; appearance:none; height:4px; background:#e0e0e8; border-radius:2px; outline:none; cursor:pointer; }
+  input[type=range]::-webkit-slider-thumb { appearance:none; width:14px; height:14px; background:var(--red); border-radius:50%; cursor:pointer; }
+  select { width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; font-family:'Inter',sans-serif; font-size:.76rem; color:var(--text); background:var(--white); cursor:pointer; outline:none; }
+  select:focus { border-color:var(--red); }
+  .mactions { display:flex; gap:9px; margin-top:18px; }
+  .mok { flex:1; padding:9px; background:var(--red); color:#fff; border:none; border-radius:8px; font-family:'Inter',sans-serif; font-size:.78rem; font-weight:600; cursor:pointer; }
+  .mok:hover { background:var(--red-l); }
+  .mcancel { flex:1; padding:9px; background:var(--off); color:var(--text2); border:1.5px solid var(--border); border-radius:8px; font-family:'Inter',sans-serif; font-size:.78rem; cursor:pointer; }
+  .mclose { position:absolute; top:12px; right:14px; background:none; border:none; font-size:1.1rem; color:var(--text3); cursor:pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="shield"><span>NMIMS</span><small>EST. 1981</small></div>
+    <div class="logo-meta">
+      <strong>NMIMS University</strong>
+      School of Technology<br>Management &amp; Engineering<br>Hyderabad Campus
+    </div>
+  </div>
+  <div class="header-center"><h1>Quantum Tunneling Effect Simulator</h1></div>
+</header>
+
+<div class="body">
+
+  <!-- Left nav -->
+  <nav class="left-nav">
+    <button class="nav-item active" onclick="showPanel('info')">Info</button>
+    <button class="nav-item" onclick="showPanel('equation')">Equation used</button>
+    <button class="nav-item" onclick="showPanel('working')">Working Process</button>
+  </nav>
+
+  <!-- Center -->
+  <div class="center">
+    <div class="sim-wrap" id="sim-wrap">
+      <canvas id="simCanvas"></canvas>
+
+      <!-- Info -->
+      <div class="panel active" id="panel-info">
+        <h2>About Quantum Tunneling</h2>
+        <p>Quantum tunneling is a quantum mechanical phenomenon where a particle passes through a potential energy barrier that classical physics would deem impenetrable. It arises because particles exhibit wave-like behavior governed by the Schrödinger equation — the wavefunction ψ has a non-zero amplitude on both sides of the barrier.</p>
+        <p>The simulation displays the <strong style="color:#e74c3c">real part ℜ(ψ)</strong> in red and the <strong style="color:#1a3fbf">imaginary part ℑ(ψ)</strong> in dark blue, along with the <strong style="color:#6b8cae">potential V(x)</strong> in steel-blue.</p>
+        <h3>Real-World Applications</h3>
+        <p>Nuclear fusion in stars · Scanning Tunneling Microscopes (STM) · Tunnel diodes · Flash memory (NAND) · Enzyme catalysis · Alpha decay</p>
+        <h3>About this Simulator</h3>
+        <p>The TDSE is solved with the <strong>Crank–Nicolson</strong> implicit scheme — unconditionally stable, unitary (norm-preserving), and 2nd-order accurate in both Δx and Δt.</p>
+        <p style="font-size:.74rem;color:var(--text3);margin-top:12px">Press <strong style="color:var(--red)">▶ Simulator</strong> on the right to view the live wavepacket animation.</p>
+      </div>
+
+      <!-- Equation -->
+      <div class="panel" id="panel-equation">
+        <h2>Equations Used</h2>
+        <h3>Time-Dependent Schrödinger Equation</h3>
+        <div class="eq"><span class="eq-lbl">Governing equation</span>iℏ ∂ψ/∂t = Ĥψ = [−ℏ²/2m · ∂²/∂x² + V(x)] ψ</div>
+        <h3>Crank–Nicolson Scheme</h3>
+        <div class="eq"><span class="eq-lbl">CN update (α = Δt/2ℏ)</span>(I + iα·Ĥ) ψⁿ⁺¹ = (I − iα·Ĥ) ψⁿ</div>
+        <h3>Initial Gaussian Wavepacket</h3>
+        <div class="eq"><span class="eq-lbl">ψ(x,0)</span>ψ = (2πσ²)^(−1/4) · exp[−(x−x₀)²/4σ²] · e^(ik₀x)</div>
+        <h3>Transmission &amp; Reflection</h3>
+        <div class="eq"><span class="eq-lbl">Probabilities</span>T = ∫_{x&gt;x_R} |ψ|² dx &nbsp;|&nbsp; R = ∫_{x&lt;x_L} |ψ|² dx</div>
+        <h3>WKB Estimate (rectangular barrier)</h3>
+        <div class="eq"><span class="eq-lbl">Tunneling probability</span>T ≈ exp[−2L √(2m(V₀−E)) / ℏ]</div>
+      </div>
+
+      <!-- Working Process -->
+      <div class="panel" id="panel-working">
+        <h2>How the Simulator Works</h2>
+        <ol class="steps">
+          <li><strong>Grid init:</strong> N = 700 uniform points over x ∈ [−160, 160], ℏ = m = 1.</li>
+          <li><strong>Potential V(x):</strong> Chosen barrier profile evaluated on the grid.</li>
+          <li><strong>Wavepacket:</strong> Normalised Gaussian ψ(x,0) with momentum k₀ and spread σ, placed at x₀ = −100.</li>
+          <li><strong>Hamiltonian:</strong> Kinetic energy via central differences → tridiagonal matrix H with V(x) on diagonal.</li>
+          <li><strong>CN matrices:</strong> A = I + iαH, B = I − iαH assembled; Thomas forward-sweep precomputed once.</li>
+          <li><strong>Time loop:</strong> (1) RHS = B·ψⁿ, (2) solve A·ψⁿ⁺¹ = RHS via Thomas O(N), (3) renormalise every 40 steps.</li>
+          <li><strong>Rendering:</strong> ℜ(ψ) red, ℑ(ψ) dark blue, V(x) steel-blue — matplotlib-style with grid, y-axis, and legend.</li>
+          <li><strong>Readouts:</strong> T and R computed by integrating |ψ|² over right/left domains in real time.</li>
+        </ol>
+      </div>
+
+      <!-- Height toast (inside sim-wrap for positioning) -->
+      <div class="height-toast" id="height-toast">
+        <button class="toast-close" onclick="closeToast()">✕</button>
+        <div class="toast-title" id="toast-title"><span class="toast-star">⭐</span><span id="toast-title-text">Effect of changing barrier height</span></div>
+        <div id="toast-body"></div>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="si"><div class="si-lbl">Transmission T</div><div class="si-val vT" id="sT">—</div></div>
+      <div class="si"><div class="si-lbl">Reflection R</div><div class="si-val vR" id="sR">—</div></div>
+      <div class="si"><div class="si-lbl">Energy E</div><div class="si-val vE" id="sE">—</div></div>
+      <div class="si"><div class="si-lbl">Norm ‖ψ‖²</div><div class="si-val vN" id="sN">1.000</div></div>
+      <div class="prob-wrap">
+        <div class="prob-lbl">T vs R split</div>
+        <div class="prob-track">
+          <div class="bT" id="bT" style="width:0%"></div>
+          <div class="bR" id="bR" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="tinfo">t = <span id="tDisp">0.0</span> &nbsp;|&nbsp; step <span id="stDisp">0</span></div>
+    </div>
+  </div>
+
+  <!-- Right controls -->
+  <div class="right-ctrl">
+    <button class="rbtn" onclick="showSim()">▶ Simulator</button>
+
+    <!-- HEIGHT POTENTIAL — live +/- control -->
+    <div class="height-btn-group">
+      <div class="height-label">
+        <span style="font-size:.65rem;letter-spacing:.06em;opacity:.85">HEIGHT (POTENTIAL)</span>
+        <span class="v0-display">V₀ = <span id="v0-live">1.00</span></span>
+      </div>
+      <div class="height-actions">
+        <button class="h-btn h-btn-dec" onclick="changeHeight(-0.25)" title="Decrease barrier height">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <span style="font-size:1.4rem;line-height:1">−</span>
+            <span>Lower</span>
+          </div>
+        </button>
+        <button class="h-btn h-btn-inc" onclick="changeHeight(+0.25)" title="Increase barrier height">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <span style="font-size:1.4rem;line-height:1">+</span>
+            <span>Raise</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <button class="rbtn" onclick="openM('width')">Width (L)</button>
+    <button class="rbtn gray" onclick="resetSim()">RESET</button>
+    <button class="rbtn" onclick="openM('mode')">
+      Time Dependent /<br>Independent<br>
+      <span class="mbadge" id="modeBadge">T-DEPENDENT</span>
+    </button>
+  </div>
+</div>
+
+<!-- Width modal -->
+<div class="backdrop" id="m-width">
+  <div class="modal">
+    <button class="mclose" onclick="closeM('width')">✕</button>
+    <h3>Barrier Width &amp; Type</h3>
+    <div class="mrow">
+      <label>Barrier type</label>
+      <select id="i-pot">
+        <option value="single">Single Rectangular Barrier</option>
+        <option value="double">Double Slit</option>
+        <option value="step">Potential Step</option>
+        <option value="delta">Delta-like</option>
+        <option value="none">Free Particle (no barrier)</option>
+      </select>
+    </div>
+    <div class="mrow">
+      <label>Barrier width w <span id="v-Vw">20</span></label>
+      <input type="range" id="i-Vw" min="2" max="60" step="1" value="20" oninput="document.getElementById('v-Vw').textContent=parseInt(this.value)">
+    </div>
+    <div class="mrow">
+      <label>Momentum k₀ <span id="v-k0">1.20</span></label>
+      <input type="range" id="i-k0" min="0.3" max="3.0" step="0.05" value="1.2" oninput="document.getElementById('v-k0').textContent=parseFloat(this.value).toFixed(2)">
+    </div>
+    <div class="mrow">
+      <label>Wavepacket spread σ <span id="v-sig">5.0</span></label>
+      <input type="range" id="i-sig" min="2" max="14" step="0.5" value="5" oninput="document.getElementById('v-sig').textContent=parseFloat(this.value).toFixed(1)">
+    </div>
+    <div class="mrow">
+      <label>Sim speed (steps/frame) <span id="v-spd">4</span></label>
+      <input type="range" id="i-spd" min="1" max="16" step="1" value="4" oninput="document.getElementById('v-spd').textContent=parseInt(this.value);stepsPerFrame=parseInt(this.value)">
+    </div>
+    <div class="mactions">
+      <button class="mok" onclick="applyWidth();closeM('width')">Apply</button>
+      <button class="mcancel" onclick="closeM('width')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mode modal -->
+<div class="backdrop" id="m-mode">
+  <div class="modal">
+    <button class="mclose" onclick="closeM('mode')">✕</button>
+    <h3>Simulation Mode</h3>
+    <div class="mrow">
+      <label>Select mode</label>
+      <select id="i-mode">
+        <option value="td">Time-Dependent (wavepacket evolution)</option>
+        <option value="ti">Time-Independent (frozen snapshot)</option>
+      </select>
+    </div>
+    <p style="font-size:.74rem;color:var(--text3);margin-top:8px;line-height:1.65">
+      <strong style="color:var(--text2)">Time-Dependent:</strong> Full CN propagation, wavepacket evolves in real time.<br><br>
+      <strong style="color:var(--text2)">Time-Independent:</strong> Pauses evolution — static analysis of T and R.
+    </p>
+    <div class="mactions">
+      <button class="mok" onclick="applyMode();closeM('mode')">Apply</button>
+      <button class="mcancel" onclick="closeM('mode')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  Quantum Tunneling — Crank–Nicolson Engine
+// ═══════════════════════════════════════════════════
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+
+const hbar=1, m_=1, x_min=-160, x_max=160;
+let Nx=700, dt=0.05, step=0, running=true, stepsPerFrame=4, timeDependent=true;
+let k0=1.2, sigma=5.0, x0_=-100, pot_type='single', V0_=1.0, Vw_=20;
+let dx, x_, psiR, psiI, V_;
+let A_dR,A_dI,B_dR,B_dI,A_oI,B_oI,cpR,cpI,rhsR,rhsI;
+
+function buildGrid(){
+  dx=(x_max-x_min)/(Nx-1); x_=new Float64Array(Nx);
+  for(let i=0;i<Nx;i++) x_[i]=x_min+i*dx;
+}
+function buildV(){
+  V_=new Float64Array(Nx);
+  if(pot_type==='none') return;
+  if(pot_type==='single'){ for(let i=0;i<Nx;i++) if(Math.abs(x_[i])<Vw_/2) V_[i]=V0_; }
+  else if(pot_type==='double'){
+    let g=30,w=Math.min(Vw_,14);
+    for(let i=0;i<Nx;i++) if(Math.abs(x_[i]+g/2)<w/2||Math.abs(x_[i]-g/2)<w/2) V_[i]=V0_;
+  }
+  else if(pot_type==='step'){ for(let i=0;i<Nx;i++) if(x_[i]>0) V_[i]=V0_; }
+  else if(pot_type==='delta'){ let w=Math.max(0.3,dx*2); for(let i=0;i<Nx;i++) if(Math.abs(x_[i])<w/2) V_[i]=V0_*5; }
+}
+function buildCN(){
+  let coef=-hbar*hbar/(2*m_*dx*dx), bt=dt/(2*hbar);
+  A_dR=new Float64Array(Nx); A_dI=new Float64Array(Nx);
+  B_dR=new Float64Array(Nx); B_dI=new Float64Array(Nx);
+  for(let i=0;i<Nx;i++){
+    let Hd=-2*coef+V_[i];
+    A_dR[i]=1; A_dI[i]=bt*Hd; B_dR[i]=1; B_dI[i]=-bt*Hd;
+  }
+  A_oI=bt*coef; B_oI=-bt*coef;
+  cpR=new Float64Array(Nx-1); cpI=new Float64Array(Nx-1);
+  let br=A_dR[0],bi=A_dI[0],mg=br*br+bi*bi;
+  cpR[0]=(A_oI*bi)/mg; cpI[0]=(A_oI*br)/mg;
+  for(let i=1;i<Nx-1;i++){
+    let dr=A_dR[i]-(-A_oI*cpI[i-1]),di=A_dI[i]-(A_oI*cpR[i-1]);
+    mg=dr*dr+di*di;
+    cpR[i]=(A_oI*di)/mg; cpI[i]=(A_oI*dr)/mg;
+  }
+  rhsR=new Float64Array(Nx); rhsI=new Float64Array(Nx);
+}
+function initPsi(){
+  psiR=new Float64Array(Nx); psiI=new Float64Array(Nx);
+  let nm=Math.pow(1/(2*Math.PI*sigma*sigma),.25), s=0;
+  for(let i=0;i<Nx;i++){
+    let e=Math.exp(-(x_[i]-x0_)*(x_[i]-x0_)/(4*sigma*sigma));
+    psiR[i]=nm*e*Math.cos(k0*x_[i]); psiI[i]=nm*e*Math.sin(k0*x_[i]);
+    s+=psiR[i]*psiR[i]+psiI[i]*psiI[i];
+  }
+  s=Math.sqrt(s*dx);
+  for(let i=0;i<Nx;i++){psiR[i]/=s;psiI[i]/=s;}
+}
+function applyB(pR,pI,oR,oI){
+  for(let i=0;i<Nx;i++){
+    oR[i]=B_dR[i]*pR[i]-B_dI[i]*pI[i];
+    oI[i]=B_dR[i]*pI[i]+B_dI[i]*pR[i];
+    if(i>0){oR[i]+=(-B_oI*pI[i-1]);oI[i]+=(B_oI*pR[i-1]);}
+    if(i<Nx-1){oR[i]+=(-B_oI*pI[i+1]);oI[i]+=(B_oI*pR[i+1]);}
+  }
+  oR[0]=oI[0]=oR[Nx-1]=oI[Nx-1]=0;
+}
+function thomas(){
+  let dpR=new Float64Array(Nx),dpI=new Float64Array(Nx);
+  let br=A_dR[0],bi=A_dI[0],mg=br*br+bi*bi;
+  dpR[0]=(rhsR[0]*br+rhsI[0]*bi)/mg;
+  dpI[0]=(rhsI[0]*br-rhsR[0]*bi)/mg;
+  for(let i=1;i<Nx;i++){
+    let dr=A_dR[i]-(-A_oI*cpI[i-1]),di=A_dI[i]-(A_oI*cpR[i-1]);
+    mg=dr*dr+di*di;
+    let nr=rhsR[i]-(-A_oI*dpI[i-1]),ni=rhsI[i]-(A_oI*dpR[i-1]);
+    dpR[i]=(nr*dr+ni*di)/mg; dpI[i]=(ni*dr-nr*di)/mg;
+  }
+  psiR[Nx-1]=dpR[Nx-1]; psiI[Nx-1]=dpI[Nx-1];
+  for(let i=Nx-2;i>=0;i--){
+    psiR[i]=dpR[i]-(cpR[i]*psiR[i+1]-cpI[i]*psiI[i+1]);
+    psiI[i]=dpI[i]-(cpR[i]*psiI[i+1]+cpI[i]*psiR[i+1]);
+  }
+}
+function stepSim(){
+  applyB(psiR,psiI,rhsR,rhsI); thomas();
+  if(step%40===0){
+    let s=0;
+    for(let i=0;i<Nx;i++) s+=psiR[i]*psiR[i]+psiI[i]*psiI[i];
+    s=Math.sqrt(s*dx); if(s>0) for(let i=0;i<Nx;i++){psiR[i]/=s;psiI[i]/=s;}
+  }
+  step++;
+}
+
+// ─── Draw ───
+const ML=58,MR=20,MT=18,MB=38;
+function draw(){
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PW=W-ML-MR, PH=H-MT-MB;
+  ctx.fillStyle='#f0f4f8'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#e8eef5'; ctx.fillRect(ML,MT,PW,PH);
+
+  let maxAmp=0;
+  for(let i=0;i<Nx;i++){
+    let ar=Math.abs(psiR[i]),ai=Math.abs(psiI[i]);
+    if(ar>maxAmp)maxAmp=ar; if(ai>maxAmp)maxAmp=ai;
+  }
+  let maxV=0; for(let i=0;i<Nx;i++) if(V_[i]>maxV)maxV=V_[i];
+  let Vscale=maxV>0?(maxAmp*0.75)/maxV:1;
+  if(maxAmp<0.001)maxAmp=0.25;
+  let ymax=Math.ceil(maxAmp*10)/10+0.02; ymax=Math.max(ymax,0.1);
+  let ymin=-ymax;
+  const toX=xi=>ML+((xi-x_min)/(x_max-x_min))*PW;
+  const toY=v=>MT+PH-((v-ymin)/(ymax-ymin))*PH;
+
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=1;
+  let xTS=40;
+  for(let xi=Math.ceil(x_min/xTS)*xTS;xi<=x_max;xi+=xTS){let px=toX(xi);ctx.beginPath();ctx.moveTo(px,MT);ctx.lineTo(px,MT+PH);ctx.stroke();}
+  let yTS=ymax>0.15?0.1:0.05;
+  for(let yv=Math.ceil(ymin/yTS)*yTS;yv<=ymax+0.001;yv+=yTS){let py=toY(yv);ctx.beginPath();ctx.moveTo(ML,py);ctx.lineTo(ML+PW,py);ctx.stroke();}
+
+  ctx.strokeStyle='rgba(100,120,150,0.4)'; ctx.lineWidth=1;
+  ctx.strokeRect(ML,MT,PW,PH);
+
+  // y-axis labels
+  ctx.fillStyle='#333'; ctx.font='11px Inter,sans-serif'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let yv=Math.ceil(ymin/yTS)*yTS;yv<=ymax+0.001;yv+=yTS){
+    let py=toY(yv); let lbl=Math.abs(yv)<0.001?'0.0':yv.toFixed(1);
+    ctx.fillText(lbl,ML-6,py);
+  }
+  // x-axis labels
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for(let xi=Math.ceil(x_min/xTS)*xTS;xi<=x_max;xi+=xTS){
+    ctx.fillText(Math.round(xi-x_min),toX(xi),MT+PH+6);
+  }
+
+  // V(x)
+  if(maxV>0){
+    ctx.save(); ctx.strokeStyle='#7c9ec5'; ctx.lineWidth=2; ctx.beginPath();
+    for(let i=0;i<Nx;i++){let px=toX(x_[i]),py=toY(V_[i]*Vscale);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}
+    ctx.stroke(); ctx.restore();
+  }
+
+  // Im(ψ) — dark blue
+  ctx.save(); ctx.strokeStyle='#1a3fbf'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<Nx;i++){let px=toX(x_[i]),py=toY(psiI[i]);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}
+  ctx.stroke(); ctx.restore();
+
+  // Re(ψ) — red
+  ctx.save(); ctx.strokeStyle='#d62728'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<Nx;i++){let px=toX(x_[i]),py=toY(psiR[i]);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}
+  ctx.stroke(); ctx.restore();
+
+  // zero line
+  ctx.save(); ctx.strokeStyle='rgba(60,80,110,0.35)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(ML,toY(0)); ctx.lineTo(ML+PW,toY(0)); ctx.stroke(); ctx.restore();
+
+  // Legend
+  const legItems=[{color:'#7c9ec5',label:'V(x)'},{color:'#d62728',label:'ℜ(ψ)'},{color:'#1a3fbf',label:'ℑ(ψ)'}];
+  ctx.font='12px Inter,sans-serif';
+  let maxLW=0; legItems.forEach(it=>{let lw=ctx.measureText(it.label).width;if(lw>maxLW)maxLW=lw;});
+  let legW=maxLW+36,legH=legItems.length*20+12,bx=ML+PW-legW-8,by=MT+8;
+  ctx.save(); ctx.fillStyle='rgba(255,255,255,0.82)'; ctx.strokeStyle='rgba(160,180,210,0.5)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.roundRect(bx,by,legW,legH,5); ctx.fill(); ctx.stroke();
+  legItems.forEach((it,idx)=>{
+    let iy=by+10+idx*20;
+    ctx.strokeStyle=it.color; ctx.lineWidth=2.2;
+    ctx.beginPath(); ctx.moveTo(bx+8,iy+5); ctx.lineTo(bx+26,iy+5); ctx.stroke();
+    ctx.fillStyle='#222'; ctx.font='italic 12px Crimson Pro,Georgia,serif';
+    ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(it.label,bx+30,iy+5);
+  });
+  ctx.restore();
+
+  // Stats
+  let prob=new Float64Array(Nx);
+  for(let i=0;i<Nx;i++) prob[i]=psiR[i]*psiR[i]+psiI[i]*psiI[i];
+  let iL=Math.max(0,Math.min(Nx-1,Math.floor(((-50-x_min)/(x_max-x_min))*Nx)));
+  let iR=Math.max(0,Math.min(Nx-1,Math.floor(((50-x_min)/(x_max-x_min))*Nx)));
+  let pL=0,pRr=0,pT=0;
+  for(let i=0;i<Nx;i++){if(i<iL)pL+=prob[i];if(i>iR)pRr+=prob[i];pT+=prob[i];}
+  pL*=dx;pRr*=dx;pT*=dx;
+  document.getElementById('sT').textContent=pRr.toFixed(4);
+  document.getElementById('sR').textContent=pL.toFixed(4);
+  document.getElementById('sN').textContent=pT.toFixed(4);
+  document.getElementById('sE').textContent=(k0*k0/2).toFixed(3);
+  let tr=pL+pRr;
+  if(tr>.01){document.getElementById('bT').style.width=(pRr/tr*100).toFixed(1)+'%';document.getElementById('bR').style.width=(pL/tr*100).toFixed(1)+'%';}
+  document.getElementById('tDisp').textContent=(step*dt).toFixed(1);
+  document.getElementById('stDisp').textContent=step;
+}
+
+function init(){buildGrid();buildV();buildCN();initPsi();step=0;}
+function resize(){const r=canvas.parentElement.getBoundingClientRect();canvas.width=Math.floor(r.width);canvas.height=Math.floor(r.height);}
+function loop(){if(running&&timeDependent)for(let s=0;s<stepsPerFrame;s++)stepSim();draw();requestAnimationFrame(loop);}
+
+// ─── Height Control ───
+let toastTimer=null;
+
+function changeHeight(delta){
+  let oldV0=V0_;
+  V0_=Math.round(Math.max(0.1, Math.min(10.0, V0_+delta))*100)/100;
+  document.getElementById('v0-live').textContent=V0_.toFixed(2);
+
+  // Rebuild potential and CN matrices (keep wavefunction intact — no reset)
+  buildV(); buildCN();
+
+  showHeightToast(delta>0 ? 'increase' : 'decrease');
+}
+
+function showHeightToast(direction){
+  const toast = document.getElementById('height-toast');
+  const titleEl = document.getElementById('toast-title');
+  const titleTxt = document.getElementById('toast-title-text');
+  const body = document.getElementById('toast-body');
+  const E = (k0*k0/2).toFixed(2);
+
+  if(direction==='increase'){
+    titleEl.className='toast-title inc';
+    titleTxt.textContent='Effect of increasing barrier height';
+    body.innerHTML=`
+      <div class="toast-section">
+        <div class="toast-section-title">Step-by-step effect</div>
+        <ul class="toast-list">
+          <li><span class="num">1.</span> V₀ − E increases (now V₀ − E = ${(V0_-E).toFixed(2)})</li>
+          <li><span class="num">2.</span> κ = √(2m(V₀−E))/ℏ increases</li>
+          <li><span class="num">3.</span> Wave decays faster inside barrier</li>
+          <li><span class="num">4.</span> Less wave reaches other side</li>
+          <li><span class="num">5.</span> <span class="toast-bold">Tunneling probability decreases exponentially</span></li>
+        </ul>
+        <div class="toast-bullet"><span class="icon">👉</span><span>Even small increases can strongly reduce probability.</span></div>
+      </div>
+      <div class="toast-section">
+        <div class="toast-section-title">Physical intuition</div>
+        <div class="toast-bullet"><span class="icon">🧱</span><span>Higher barrier = stronger "forbidden region"</span></div>
+        <div class="toast-bullet"><span class="icon">📉</span><span>Wave cannot penetrate much → less transmission.</span></div>
+      </div>`;
+  } else {
+    titleEl.className='toast-title dec';
+    titleTxt.textContent='Effect of decreasing barrier height';
+    body.innerHTML=`
+      <div class="toast-section">
+        <div class="toast-section-title">If V₀ decreases:</div>
+        <ul class="toast-list">
+          <li><span class="num">1.</span> V₀ − E decreases (now V₀ − E = ${(V0_-E).toFixed(2)})</li>
+          <li><span class="num">2.</span> κ decreases</li>
+          <li><span class="num">3.</span> Wave decays slowly</li>
+          <li><span class="num">4.</span> More amplitude reaches other side</li>
+          <li><span class="num">5.</span> <span class="toast-bold">Tunneling probability increases</span></li>
+        </ul>
+      </div>
+      <div class="toast-cond">If V₀ → E:</div>
+      <div class="toast-bullet"><span class="icon">👉</span><span>Decay almost disappears</span></div>
+      <div class="toast-bullet"><span class="icon">👉</span><span>Tunneling becomes high</span></div>
+      <div class="toast-cond">If V₀ &lt; E:</div>
+      <div class="toast-bullet"><span class="icon">👉</span><span>Not tunneling anymore → normal transmission</span></div>`;
+  }
+
+  toast.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>toast.classList.remove('show'), 5000);
+}
+
+function closeToast(){
+  document.getElementById('height-toast').classList.remove('show');
+  if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}
+}
+
+// ─── Other UI ───
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item')[{info:0,equation:1,working:2}[id]].classList.add('active');
+}
+function showSim(){
+  document.querySelectorAll('.panel').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+}
+function openM(id){document.getElementById('m-'+id).classList.add('open');}
+function closeM(id){document.getElementById('m-'+id).classList.remove('open');}
+
+function applyWidth(){
+  pot_type=document.getElementById('i-pot').value;
+  Vw_=parseFloat(document.getElementById('i-Vw').value);
+  k0=parseFloat(document.getElementById('i-k0').value);
+  sigma=parseFloat(document.getElementById('i-sig').value);
+  stepsPerFrame=parseInt(document.getElementById('i-spd').value);
+  buildV(); buildCN(); initPsi(); step=0;
+}
+function applyMode(){
+  timeDependent=document.getElementById('i-mode').value==='td';
+  document.getElementById('modeBadge').textContent=timeDependent?'T-DEPENDENT':'T-INDEPENDENT';
+}
+function resetSim(){initPsi();step=0;}
+
+document.querySelectorAll('.backdrop').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+});
+
+window.addEventListener('load',()=>{
+  resize();
+  new ResizeObserver(resize).observe(canvas.parentElement);
+  init(); loop();
+});
+</script>
+</body>
+</html>
