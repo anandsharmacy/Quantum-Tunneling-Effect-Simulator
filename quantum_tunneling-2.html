@@ -298,18 +298,37 @@
       margin-top: 1px;
     }
 
-    /* Stats bar */
-    .stats-bar {
-      background: var(--white);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 9px 16px;
+    /* App Footer */
+    .app-footer {
+      background: #edf0f5;
+      border-top: 1.5px solid var(--border);
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+      padding: 8px 20px;
       display: flex;
       align-items: center;
       gap: 18px;
-      flex-wrap: wrap;
-      box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
       flex-shrink: 0;
+      flex-wrap: nowrap;
+      min-height: 48px;
+    }
+
+    .footer-stats {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: nowrap;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .footer-attr {
+      margin-left: auto;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-left: 16px;
+      border-left: 1px solid var(--border);
     }
 
     .si {
@@ -352,6 +371,7 @@
     .prob-wrap {
       flex: 1;
       min-width: 90px;
+      max-width: 160px;
     }
 
     .prob-lbl {
@@ -364,7 +384,7 @@
 
     .prob-track {
       height: 6px;
-      background: #eaecf0;
+      background: #d8dce6;
       border-radius: 4px;
       overflow: hidden;
       display: flex;
@@ -383,7 +403,6 @@
     }
 
     .tinfo {
-      margin-left: auto;
       font-size: .67rem;
       color: var(--text3);
       font-family: 'Crimson Pro', serif;
@@ -885,37 +904,8 @@
           <div id="toast-body"></div>
         </div>
       </div>
-
-      <!-- Stats bar -->
-      <div class="stats-bar">
-        <div class="si">
-          <div class="si-lbl">Transmission T</div>
-          <div class="si-val vT" id="sT">—</div>
-        </div>
-        <div class="si">
-          <div class="si-lbl">Reflection R</div>
-          <div class="si-val vR" id="sR">—</div>
-        </div>
-        <div class="si">
-          <div class="si-lbl">Energy E</div>
-          <div class="si-val vE" id="sE">—</div>
-        </div>
-        <div class="si">
-          <div class="si-lbl">Norm ‖ψ‖²</div>
-          <div class="si-val vN" id="sN">1.000</div>
-        </div>
-        <div class="prob-wrap">
-          <div class="prob-lbl">T vs R split</div>
-          <div class="prob-track">
-            <div class="bT" id="bT" style="width:0%"></div>
-            <div class="bR" id="bR" style="width:0%"></div>
-          </div>
-        </div>
-        <div class="tinfo">t = <span id="tDisp">0.0</span> &nbsp;|&nbsp; step <span id="stDisp">0</span></div>
-        <div class="tinfo" style="border-left:1px solid var(--border);padding-left:12px;font-style:italic;">Built under
-          the supervision of <span style="color:var(--text);font-weight:600;">Prof. Soumyajit Seth</span></div>
-      </div>
     </div>
+
 
     <!-- Right controls -->
     <div class="right-ctrl">
@@ -951,6 +941,40 @@
       </button>
     </div>
   </div>
+
+  <!-- Full-width footer status bar -->
+  <footer class="app-footer">
+    <div class="footer-stats">
+      <div class="si">
+        <div class="si-lbl">Transmission T</div>
+        <div class="si-val vT" id="sT">—</div>
+      </div>
+      <div class="si">
+        <div class="si-lbl">Reflection R</div>
+        <div class="si-val vR" id="sR">—</div>
+      </div>
+      <div class="si">
+        <div class="si-lbl">Energy E</div>
+        <div class="si-val vE" id="sE">—</div>
+      </div>
+      <div class="si">
+        <div class="si-lbl">Norm ‖ψ‖²</div>
+        <div class="si-val vN" id="sN">1.000</div>
+      </div>
+      <div class="prob-wrap">
+        <div class="prob-lbl">T vs R split</div>
+        <div class="prob-track">
+          <div class="bT" id="bT" style="width:0%"></div>
+          <div class="bR" id="bR" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="tinfo">t = <span id="tDisp">0.0</span> | step <span id="stDisp">0</span></div>
+    </div>
+    <div class="footer-attr">
+      <span class="tinfo" style="font-style:italic;">Built under the supervision of&nbsp;<strong
+          style="color:var(--text2);font-style:normal;">Prof. Soumyajit Seth</strong></span>
+    </div>
+  </footer>
 
   <!-- Width modal -->
   <div class="backdrop" id="m-width">

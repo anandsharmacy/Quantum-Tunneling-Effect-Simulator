@@ -287,18 +287,39 @@
     margin-top: 1px;
   }
 
-  /* Stats bar */
-  .stats-bar {
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 16px;
+  /* ── App Footer ── */
+  .app-footer {
+    background: #edf0f5;
+    border-top: 1.5px solid var(--border);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+    padding: 8px 20px;
     display: flex;
     align-items: center;
     gap: 18px;
-    flex-wrap: wrap;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
     flex-shrink: 0;
+    flex-wrap: nowrap;
+    min-height: 48px;
+  }
+
+  /* left stats cluster */
+  .footer-stats {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: nowrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* right attribution */
+  .footer-attr {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 16px;
+    border-left: 1px solid var(--border);
   }
 
   .si {
@@ -341,6 +362,7 @@
   .prob-wrap {
     flex: 1;
     min-width: 90px;
+    max-width: 160px;
   }
 
   .prob-lbl {
@@ -353,7 +375,7 @@
 
   .prob-track {
     height: 6px;
-    background: #eaecf0;
+    background: #d8dce6;
     border-radius: 4px;
     overflow: hidden;
     display: flex;
@@ -372,7 +394,6 @@
   }
 
   .tinfo {
-    margin-left: auto;
     font-size: .67rem;
     color: var(--text3);
     font-family: 'Crimson Pro', serif;
