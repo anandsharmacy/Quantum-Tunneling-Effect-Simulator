@@ -22,7 +22,7 @@ An interactive web-based physics simulation of the Quantum Tunneling Effect, vis
 ## Project Structure
 
 - `index.html`: The main user interface with mathematical info side-panels and viewport controls.
-- `css/styles.css`: Custom CSS3 styling employing CSS variables, flexbox, and highly-polished UI/UX. 
+- `css/styles.css`: Custom CSS3 styling employing CSS variables, flexbox, and highly-polished UI/UX.
 - `js/main.js`: The central physics engine, handling TDSE numerical integration, HTML5 Canvas rendering, and event-handling.
 - `quantum_tunneling-2.html`: A standalone version encompassing HTML, CSS, and JS in a single file for easy sharing.
 
@@ -52,5 +52,6 @@ Since the simulator is built with vanilla web technologies, you can run it perfe
 - **Numerical Matrices Compilation** ($A = I + i\alpha H$, $B = I - i\alpha H$).
 
 ## Developer
+
 Developed for **NMIMS University** (School of Technology Management & Engineering, Hyderabad Campus).
 Contact: anandsharmacy@gmail.com
