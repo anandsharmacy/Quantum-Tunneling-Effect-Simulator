@@ -111,7 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     let maxV = 0; for (let i = 0; i < Nx; i++) if (V_[i] > maxV) maxV = V_[i];
     if (maxAmp < 0.001) maxAmp = 0.25;
-    let ymax = Math.ceil(maxAmp * 10) / 10 + 0.02; ymax = Math.max(ymax, 0.1);
+    // ymax must be large enough to show both ψ amplitude and V0, so the
+    // barrier top never clips off-screen when V0 > wavepacket amplitude.
+    let ymax = Math.ceil(Math.max(maxAmp, maxV) * 10) / 10 + 0.02;
+    ymax = Math.max(ymax, 0.1);
     let ymin = -ymax;
     const toX = xi => ML + ((xi - view_x_min) / (view_x_max - view_x_min)) * PW;
     const toY = v => MT + PH - ((v - ymin) / (ymax - ymin)) * PH;
@@ -140,16 +143,31 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // V(x)
+    // V(x) — plotted on the same physics axis as ψ using toY().
+    // V_[i] is the raw potential value, so toY(0) = zero line and
+    // toY(V0_) moves the barrier top proportionally as V0 changes.
     if (maxV > 0) {
-      ctx.save(); ctx.strokeStyle = '#7c9ec5'; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.save();
+      // Filled barrier region for clarity
+      ctx.fillStyle = 'rgba(124,158,197,0.18)';
+      ctx.beginPath();
+      const y0 = toY(0);
       for (let i = 0; i < Nx; i++) {
-        let px = toX(x_[i]);
-        // Render potential static anchored to the center line
-        let py = (MT + PH / 2) - (V_[i] / maxV) * (PH / 2 * 0.75);
+        let px = toX(x_[i]), py = toY(V_[i]);
+        if (i === 0) ctx.moveTo(px, y0);
+        ctx.lineTo(px, py);
+      }
+      ctx.lineTo(toX(x_[Nx - 1]), y0);
+      ctx.closePath();
+      ctx.fill();
+      // Barrier outline
+      ctx.strokeStyle = '#7c9ec5'; ctx.lineWidth = 2; ctx.beginPath();
+      for (let i = 0; i < Nx; i++) {
+        let px = toX(x_[i]), py = toY(V_[i]);
         if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
-      ctx.stroke(); ctx.restore();
+      ctx.stroke();
+      ctx.restore();
     }
 
     // Im(ψ) — dark blue
