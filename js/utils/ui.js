@@ -6,7 +6,6 @@ import {
   initSimulation,
   loop,
   stopSim,
-  changeHeight,
   zoomIn,
   zoomOut,
   recenter,
@@ -16,8 +15,10 @@ import {
   resetSim,
   getBarrierWidthNm,
   getParticleEnergyEv,
+  getBarrierPotential,
   setBarrierWidthNm,
   setParticleEnergyEv,
+  setBarrierPotential,
   k0,
   V0_,
   setRunning,
@@ -75,17 +76,13 @@ function showHeightToast(delta) {
   window.toastTimer = setTimeout(() => toast.classList.remove('show'), 5000);
 }
 
-// Wrap changeHeight to also show toast
-function uiChangeHeight(delta) {
-  changeHeight(delta);
-  showHeightToast(delta);
-}
-
 function updateQuickParameterDisplays() {
   const widthValue = document.getElementById('bw-live');
   const energyValue = document.getElementById('pe-live');
+  const potentialValue = document.getElementById('v0-live');
   if (widthValue) widthValue.textContent = getBarrierWidthNm().toFixed(1);
   if (energyValue) energyValue.textContent = getParticleEnergyEv().toFixed(4);
+  if (potentialValue) potentialValue.textContent = getBarrierPotential().toFixed(2);
 }
 
 // Initialize UI immediately since script is loaded with defer
@@ -127,13 +124,19 @@ function updateQuickParameterDisplays() {
   });
   document.getElementById('btn-stop').addEventListener('click', stopSim);
 
-  // Height controls
-  document
-    .getElementById('btn-dec-height')
-    .addEventListener('click', () => uiChangeHeight(-0.25));
-  document
-    .getElementById('btn-inc-height')
-    .addEventListener('click', () => uiChangeHeight(+0.25));
+  // Height control (direct update)
+  document.getElementById('btn-open-height').addEventListener('click', () => {
+    const currentPotential = getBarrierPotential();
+    const entry = window.prompt(
+      'Enter barrier potential V₀ (0.10 to 10.00):',
+      currentPotential.toFixed(2)
+    );
+    if (entry === null) return;
+    const nextPotential = setBarrierPotential(entry);
+    const delta = nextPotential - currentPotential;
+    if (Math.abs(delta) > 1e-9) showHeightToast(delta);
+    updateQuickParameterDisplays();
+  });
 
   // Speed controls
   document

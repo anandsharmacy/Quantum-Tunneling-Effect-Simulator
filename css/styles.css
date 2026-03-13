@@ -590,6 +590,24 @@ canvas {
   color: rgba(255, 255, 255, 0.95);
 }
 
+.speed-btn-group .speed-label {
+  padding: 7px 10px 3px;
+  font-size: 0.68rem;
+}
+
+.speed-btn-group .speed-label .v0-display {
+  font-size: 0.94rem;
+}
+
+.speed-btn-group .h-btn {
+  padding: 8px 5px;
+  font-size: 1.15rem;
+}
+
+.speed-btn-group .h-btn span {
+  font-size: 0.58rem;
+}
+
 .s-btn-dec {
   background: #206a9c;
   border-right: 1px solid rgba(255, 255, 255, 0.15);

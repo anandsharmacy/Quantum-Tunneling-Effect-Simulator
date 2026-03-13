@@ -78,6 +78,10 @@ export function getParticleEnergyEv() {
   return k0ToEnergyEv(k0);
 }
 
+export function getBarrierPotential() {
+  return V0_;
+}
+
 export function setBarrierWidthNm(nextWidthNm) {
   const widthNm = clamp(
     toNumber(nextWidthNm, internalWidthToNm(Vw_)),
@@ -105,6 +109,15 @@ export function setParticleEnergyEv(nextEnergyEv) {
   syncWidthModalFields();
   return energyEv;
 }
+
+export function setBarrierPotential(nextPotential) {
+  V0_ = clamp(toNumber(nextPotential, V0_), 0.1, 10.0);
+  document.getElementById('v0-live').textContent = V0_.toFixed(2);
+  buildV();
+  buildCN();
+  return V0_;
+}
+
 let view_x_min = x_min,
   view_x_max = x_max;
 let Nx = 700,
@@ -322,7 +335,7 @@ export function draw() {
   ctx.strokeRect(58, 18, PW, PH);
 
   // Axis labels
-  ctx.fillStyle = '#333';
+  ctx.fillStyle = '#424141';
   ctx.font = '11px Inter,sans-serif';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';

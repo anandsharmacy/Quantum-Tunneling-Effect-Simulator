@@ -155,38 +155,10 @@
           <button class="rbtn gray flex-1" id="btn-stop">■ Stop</button>
         </div>
 
-        <!-- HEIGHT POTENTIAL — live +/- control -->
-        <div class="height-btn-group">
-          <div class="height-label">
-            <span
-              style="font-size: 0.65rem; letter-spacing: 0.06em; opacity: 0.85"
-              >HEIGHT (POTENTIAL)</span
-            >
-            <span class="v0-display">V₀ = <span id="v0-live">1.00</span></span>
-          </div>
-          <div class="height-actions">
-            <button
-              class="h-btn h-btn-dec"
-              id="btn-dec-height"
-              title="Decrease barrier height"
-            >
-              <div class="flex-col-center">
-                <span class="text-lg">−</span>
-                <span>Lower</span>
-              </div>
-            </button>
-            <button
-              class="h-btn h-btn-inc"
-              id="btn-inc-height"
-              title="Increase barrier height"
-            >
-              <div class="flex-col-center">
-                <span class="text-lg">+</span>
-                <span>Raise</span>
-              </div>
-            </button>
-          </div>
-        </div>
+        <button class="rbtn quick-param quick-height" id="btn-open-height">
+          Height (potential)
+          <span class="quick-param-value">V₀ = <span id="v0-live">1.00</span></span>
+        </button>
 
         <!-- SPEED — live +/- control -->
         <div class="height-btn-group speed-btn-group">
