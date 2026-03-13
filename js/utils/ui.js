@@ -182,25 +182,6 @@ function uiChangeHeight(delta) {
     }
   });
 
-  // Live slider updates (same as original)
-  document.getElementById('i-Vw').addEventListener('input', function () {
-    document.getElementById('v-Vw').textContent = parseInt(this.value);
-  });
-  document.getElementById('i-k0').addEventListener('input', function () {
-    document.getElementById('v-k0').textContent = parseFloat(
-      this.value
-    ).toFixed(2);
-  });
-  document.getElementById('i-sig').addEventListener('input', function () {
-    document.getElementById('v-sig').textContent = parseFloat(
-      this.value
-    ).toFixed(1);
-  });
-  document.getElementById('i-spd').addEventListener('input', function () {
-    document.getElementById('v-spd').textContent = parseInt(this.value);
-    changeSpeed(0); // update internal stepsPerFrame via changeSpeed logic
-    document.getElementById('spd-live').textContent = parseInt(this.value);
-  });
 })();
 
 export function showPanel(id) {
@@ -229,3 +210,37 @@ export function openM(id) {
 export function closeM(id) {
   document.getElementById('m-' + id).classList.remove('open');
 }
+
+function sanitizeNumberInput(id, min, max, fallback, decimals = null, integer = false) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const raw = Number(el.value);
+  let nextValue = Number.isFinite(raw) ? raw : fallback;
+  nextValue = Math.max(min, Math.min(max, nextValue));
+  if (integer) nextValue = Math.round(nextValue);
+  el.value = decimals === null ? String(nextValue) : nextValue.toFixed(decimals);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const numberConfig = [
+    { id: 'i-Vw', min: 2, max: 60, fallback: 20, decimals: 1 },
+    { id: 'i-Eev', min: 0.0034, max: 0.3429, fallback: 0.0549, decimals: 4 },
+    { id: 'i-sig', min: 2, max: 14, fallback: 5, decimals: 1 },
+    { id: 'i-spd', min: 1, max: 16, fallback: 4, integer: true },
+  ];
+
+  numberConfig.forEach((cfg) => {
+    const el = document.getElementById(cfg.id);
+    if (!el) return;
+    el.addEventListener('blur', () =>
+      sanitizeNumberInput(
+        cfg.id,
+        cfg.min,
+        cfg.max,
+        cfg.fallback,
+        cfg.decimals ?? null,
+        cfg.integer ?? false
+      )
+    );
+  });
+});

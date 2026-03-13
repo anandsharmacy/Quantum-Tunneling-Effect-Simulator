@@ -838,6 +838,22 @@ input[type='range']::-webkit-slider-thumb {
   cursor: pointer;
 }
 
+input[type='number'] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.76rem;
+  color: var(--text);
+  background: var(--white);
+  outline: none;
+}
+
+input[type='number']:focus {
+  border-color: var(--red);
+}
+
 select {
   width: 100%;
   padding: 8px 10px;

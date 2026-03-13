@@ -7,6 +7,68 @@ const hbar = 1,
   m_ = 1,
   x_min = -160,
   x_max = 160;
+const L0_NM = 1;
+const HBAR_SI = 1.054571817e-34;
+const ELECTRON_MASS_KG = 9.1093837015e-31;
+const EV_J = 1.602176634e-19;
+const E0_EV = (HBAR_SI * HBAR_SI) / (ELECTRON_MASS_KG * Math.pow(L0_NM * 1e-9, 2) * EV_J);
+
+const LIMITS = {
+  widthNm: { min: 2, max: 60 },
+  energyEv: {
+    min: ((0.3 * 0.3) / 2) * E0_EV,
+    max: ((3.0 * 3.0) / 2) * E0_EV,
+  },
+  sigma: { min: 2, max: 14 },
+  speed: { min: 1, max: 16 },
+};
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function toNumber(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function internalEnergyToEv(energyInternal) {
+  return energyInternal * E0_EV;
+}
+
+function evToInternalEnergy(energyEv) {
+  return energyEv / E0_EV;
+}
+
+function k0ToEnergyEv(kValue) {
+  return internalEnergyToEv((kValue * kValue) / 2);
+}
+
+function energyEvToK0(energyEv) {
+  return Math.sqrt(2 * evToInternalEnergy(energyEv));
+}
+
+function internalWidthToNm(widthInternal) {
+  return widthInternal * L0_NM;
+}
+
+function nmToInternalWidth(widthNm) {
+  return widthNm / L0_NM;
+}
+
+function syncWidthModalFields() {
+  const energyEv = k0ToEnergyEv(k0);
+  const widthNm = internalWidthToNm(Vw_);
+  const energyField = document.getElementById('i-Eev');
+  const widthField = document.getElementById('i-Vw');
+  const sigmaField = document.getElementById('i-sig');
+  const speedField = document.getElementById('i-spd');
+
+  if (energyField) energyField.value = energyEv.toFixed(4);
+  if (widthField) widthField.value = widthNm.toFixed(1);
+  if (sigmaField) sigmaField.value = sigma.toFixed(1);
+  if (speedField) speedField.value = stepsPerFrame;
+}
 let view_x_min = x_min,
   view_x_max = x_max;
 let Nx = 700,
@@ -376,7 +438,7 @@ export function draw() {
   document.getElementById('sT').textContent = pRr.toFixed(4);
   document.getElementById('sR').textContent = pL.toFixed(4);
   document.getElementById('sN').textContent = pT.toFixed(4);
-  document.getElementById('sE').textContent = ((k0 * k0) / 2).toFixed(3);
+  document.getElementById('sE').textContent = k0ToEnergyEv(k0).toFixed(4);
   const tr = pL + pRr;
   if (tr > 0.01) {
     document.getElementById('bT').style.width =
@@ -460,19 +522,33 @@ export function initSimulation() {
 }
 
 export function changeSpeed(delta) {
-  stepsPerFrame = Math.max(1, Math.min(16, stepsPerFrame + delta));
+  stepsPerFrame = Math.max(LIMITS.speed.min, Math.min(LIMITS.speed.max, stepsPerFrame + delta));
   document.getElementById('spd-live').textContent = stepsPerFrame;
-  document.getElementById('i-spd').value = stepsPerFrame;
-  document.getElementById('v-spd').textContent = stepsPerFrame;
+  const speedField = document.getElementById('i-spd');
+  if (speedField) speedField.value = stepsPerFrame;
 }
 
 export function applyWidth() {
   pot_type = document.getElementById('i-pot').value;
-  Vw_ = parseFloat(document.getElementById('i-Vw').value);
-  k0 = parseFloat(document.getElementById('i-k0').value);
-  sigma = parseFloat(document.getElementById('i-sig').value);
-  stepsPerFrame = parseInt(document.getElementById('i-spd').value);
+
+  const widthNmInput = toNumber(document.getElementById('i-Vw').value, internalWidthToNm(Vw_));
+  const energyEvInput = toNumber(document.getElementById('i-Eev').value, k0ToEnergyEv(k0));
+  const sigmaInput = toNumber(document.getElementById('i-sig').value, sigma);
+  const speedInput = toNumber(document.getElementById('i-spd').value, stepsPerFrame);
+
+  const widthNm = clamp(widthNmInput, LIMITS.widthNm.min, LIMITS.widthNm.max);
+  const energyEv = clamp(energyEvInput, LIMITS.energyEv.min, LIMITS.energyEv.max);
+  const nextSigma = clamp(sigmaInput, LIMITS.sigma.min, LIMITS.sigma.max);
+  const nextSpeed = Math.round(clamp(speedInput, LIMITS.speed.min, LIMITS.speed.max));
+
+  Vw_ = nmToInternalWidth(widthNm);
+  k0 = energyEvToK0(energyEv);
+  sigma = nextSigma;
+  stepsPerFrame = nextSpeed;
+
   document.getElementById('spd-live').textContent = stepsPerFrame;
+  syncWidthModalFields();
+
   buildV();
   buildCN();
   initPsi();
@@ -499,14 +575,7 @@ export function resetSim() {
   document.getElementById('spd-live').textContent = stepsPerFrame;
 
   document.getElementById('i-pot').value = pot_type;
-  document.getElementById('i-Vw').value = Vw_;
-  document.getElementById('v-Vw').textContent = Vw_;
-  document.getElementById('i-k0').value = k0;
-  document.getElementById('v-k0').textContent = k0.toFixed(2);
-  document.getElementById('i-sig').value = sigma;
-  document.getElementById('v-sig').textContent = sigma.toFixed(1);
-  document.getElementById('i-spd').value = stepsPerFrame;
-  document.getElementById('v-spd').textContent = stepsPerFrame;
+  syncWidthModalFields();
 
   buildV();
   buildCN();

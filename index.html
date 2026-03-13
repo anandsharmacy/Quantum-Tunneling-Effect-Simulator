@@ -256,34 +256,34 @@
           </select>
         </div>
         <div class="mrow">
-          <label>Barrier width w <span id="v-Vw">20</span></label>
-          <input type="range" id="i-Vw" min="2" max="60" step="1" value="20" />
+          <label>Barrier width (nm)</label>
+          <input type="number" id="i-Vw" min="2" max="60" step="0.1" value="20" />
         </div>
         <div class="mrow">
-          <label>Momentum k₀ <span id="v-k0">1.20</span></label>
+          <label>Particle energy (eV)</label>
           <input
-            type="range"
-            id="i-k0"
-            min="0.3"
-            max="3.0"
-            step="0.05"
-            value="1.2"
+            type="number"
+            id="i-Eev"
+            min="0.0034"
+            max="0.3429"
+            step="0.0001"
+            value="0.0549"
           />
         </div>
         <div class="mrow">
-          <label>Wavepacket spread σ <span id="v-sig">5.0</span></label>
+          <label>Wavepacket spread σ</label>
           <input
-            type="range"
+            type="number"
             id="i-sig"
             min="2"
             max="14"
-            step="0.5"
+            step="0.1"
             value="5"
           />
         </div>
         <div class="mrow">
-          <label>Sim speed (steps/frame) <span id="v-spd">4</span></label>
-          <input type="range" id="i-spd" min="1" max="16" step="1" value="4" />
+          <label>Sim speed (steps/frame)</label>
+          <input type="number" id="i-spd" min="1" max="16" step="1" value="4" />
         </div>
         <div class="mactions">
           <button class="mok" id="btn-apply-width">Apply</button>
