@@ -14,6 +14,7 @@ import {
   applyWidth,
   applyMode,
   resetSim,
+  syncWidthModalFields,
   k0,
   V0_,
   setRunning,
@@ -168,6 +169,20 @@ function uiChangeHeight(delta) {
     applyMode();
     closeM('mode');
   });
+
+  // Quick access buttons for Barrier Width and Potential Energy (open Width modal)
+  document
+    .getElementById('btn-open-barrier-width')
+    .addEventListener('click', () => {
+      syncWidthModalFields();
+      openM('width');
+    });
+  document
+    .getElementById('btn-open-potential-energy')
+    .addEventListener('click', () => {
+      syncWidthModalFields();
+      openM('width');
+    });
 
   // Reset button
   document.getElementById('btn-reset').addEventListener('click', resetSim);

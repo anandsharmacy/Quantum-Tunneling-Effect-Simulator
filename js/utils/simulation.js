@@ -56,7 +56,7 @@ function nmToInternalWidth(widthNm) {
   return widthNm / L0_NM;
 }
 
-function syncWidthModalFields() {
+export function syncWidthModalFields() {
   const energyEv = k0ToEnergyEv(k0);
   const widthNm = internalWidthToNm(Vw_);
   const energyField = document.getElementById('i-Eev');
