@@ -236,14 +236,15 @@
           <span class="mbadge" id="modeBadge">T-DEPENDENT</span>
         </button>
 
-        <div class="btn-group">
-          <button class="rbtn gray rbtn-sm" id="btn-open-barrier-width">
-            Barrier Width (W)
-          </button>
-          <button class="rbtn gray rbtn-sm" id="btn-open-potential-energy">
-            Potential Energy (E)
-          </button>
-        </div>
+        <button class="rbtn quick-param quick-width" id="btn-open-barrier-width">
+          Barrier width (nm)
+          <span class="quick-param-value" id="bw-live">20.0</span>
+        </button>
+
+        <button class="rbtn gray quick-param quick-energy" id="btn-open-potential-energy">
+          Particle energy (eV)
+          <span class="quick-param-value" id="pe-live">0.0549</span>
+        </button>
       </aside>
     </main>
 
@@ -273,8 +274,8 @@
           <input
             type="number"
             id="i-Eev"
-            min="0.0034"
-            max="0.3429"
+            min="0.001"
+            max="50.0"
             step="0.0001"
             value="0.0549"
           />

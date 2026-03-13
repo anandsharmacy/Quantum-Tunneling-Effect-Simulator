@@ -14,7 +14,10 @@ import {
   applyWidth,
   applyMode,
   resetSim,
-  syncWidthModalFields,
+  getBarrierWidthNm,
+  getParticleEnergyEv,
+  setBarrierWidthNm,
+  setParticleEnergyEv,
   k0,
   V0_,
   setRunning,
@@ -78,6 +81,13 @@ function uiChangeHeight(delta) {
   showHeightToast(delta);
 }
 
+function updateQuickParameterDisplays() {
+  const widthValue = document.getElementById('bw-live');
+  const energyValue = document.getElementById('pe-live');
+  if (widthValue) widthValue.textContent = getBarrierWidthNm().toFixed(1);
+  if (energyValue) energyValue.textContent = getParticleEnergyEv().toFixed(4);
+}
+
 // Initialize UI immediately since script is loaded with defer
 (async function initUI() {
   // Load components first
@@ -96,6 +106,7 @@ function uiChangeHeight(delta) {
 
   // Initialise simulation core
   initSimulation();
+  updateQuickParameterDisplays();
   loop();
 
   // Navigation buttons
@@ -152,6 +163,7 @@ function uiChangeHeight(delta) {
     .addEventListener('click', () => closeM('width'));
   document.getElementById('btn-apply-width').addEventListener('click', () => {
     applyWidth();
+    updateQuickParameterDisplays();
     closeM('width');
   });
 
@@ -170,22 +182,37 @@ function uiChangeHeight(delta) {
     closeM('mode');
   });
 
-  // Quick access buttons for Barrier Width and Potential Energy (open Width modal)
+  // Quick access buttons for Barrier Width and Potential Energy (direct update only)
   document
     .getElementById('btn-open-barrier-width')
     .addEventListener('click', () => {
-      syncWidthModalFields();
-      openM('width');
+      const currentWidth = getBarrierWidthNm();
+      const entry = window.prompt(
+        'Enter barrier width in nm (2.0 to 60.0):',
+        currentWidth.toFixed(1)
+      );
+      if (entry === null) return;
+      setBarrierWidthNm(entry);
+      updateQuickParameterDisplays();
     });
   document
     .getElementById('btn-open-potential-energy')
     .addEventListener('click', () => {
-      syncWidthModalFields();
-      openM('width');
+      const currentEnergy = getParticleEnergyEv();
+      const entry = window.prompt(
+        'Enter particle energy in eV (0.001 to 50.0):',
+        currentEnergy.toFixed(4)
+      );
+      if (entry === null) return;
+      setParticleEnergyEv(entry);
+      updateQuickParameterDisplays();
     });
 
   // Reset button
-  document.getElementById('btn-reset').addEventListener('click', resetSim);
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    resetSim();
+    updateQuickParameterDisplays();
+  });
 
   // Toast close
   document.getElementById('btn-close-toast').addEventListener('click', () => {
@@ -239,7 +266,7 @@ function sanitizeNumberInput(id, min, max, fallback, decimals = null, integer = 
 document.addEventListener('DOMContentLoaded', () => {
   const numberConfig = [
     { id: 'i-Vw', min: 2, max: 60, fallback: 20, decimals: 1 },
-    { id: 'i-Eev', min: 0.0034, max: 0.3429, fallback: 0.0549, decimals: 4 },
+    { id: 'i-Eev', min: 0.001, max: 50.0, fallback: 0.0549, decimals: 4 },
     { id: 'i-sig', min: 2, max: 14, fallback: 5, decimals: 1 },
     { id: 'i-spd', min: 1, max: 16, fallback: 4, integer: true },
   ];

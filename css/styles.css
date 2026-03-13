@@ -463,6 +463,28 @@ canvas {
   letter-spacing: 0.1em;
 }
 
+.quick-param {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 11px 12px;
+  font-size: 0.78rem;
+}
+
+.quick-param-value {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.quick-energy .quick-param-value {
+  color: rgba(255, 255, 255, 0.92);
+}
+
 /* ═══ HEIGHT BUTTON — split +/- design ═══ */
 .height-btn-group {
   display: flex;

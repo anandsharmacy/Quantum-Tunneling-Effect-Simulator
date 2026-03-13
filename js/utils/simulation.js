@@ -16,8 +16,8 @@ const E0_EV = (HBAR_SI * HBAR_SI) / (ELECTRON_MASS_KG * Math.pow(L0_NM * 1e-9, 2
 const LIMITS = {
   widthNm: { min: 2, max: 60 },
   energyEv: {
-    min: ((0.3 * 0.3) / 2) * E0_EV,
-    max: ((3.0 * 3.0) / 2) * E0_EV,
+    min: 0.001,
+    max: 50.0,
   },
   sigma: { min: 2, max: 14 },
   speed: { min: 1, max: 16 },
@@ -68,6 +68,42 @@ export function syncWidthModalFields() {
   if (widthField) widthField.value = widthNm.toFixed(1);
   if (sigmaField) sigmaField.value = sigma.toFixed(1);
   if (speedField) speedField.value = stepsPerFrame;
+}
+
+export function getBarrierWidthNm() {
+  return internalWidthToNm(Vw_);
+}
+
+export function getParticleEnergyEv() {
+  return k0ToEnergyEv(k0);
+}
+
+export function setBarrierWidthNm(nextWidthNm) {
+  const widthNm = clamp(
+    toNumber(nextWidthNm, internalWidthToNm(Vw_)),
+    LIMITS.widthNm.min,
+    LIMITS.widthNm.max
+  );
+  Vw_ = nmToInternalWidth(widthNm);
+  buildV();
+  buildCN();
+  initPsi();
+  step = 0;
+  syncWidthModalFields();
+  return widthNm;
+}
+
+export function setParticleEnergyEv(nextEnergyEv) {
+  const energyEv = clamp(
+    toNumber(nextEnergyEv, k0ToEnergyEv(k0)),
+    LIMITS.energyEv.min,
+    LIMITS.energyEv.max
+  );
+  k0 = energyEvToK0(energyEv);
+  initPsi();
+  step = 0;
+  syncWidthModalFields();
+  return energyEv;
 }
 let view_x_min = x_min,
   view_x_max = x_max;
