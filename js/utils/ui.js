@@ -181,7 +181,7 @@ function initSpeedSlider() {
   document.getElementById('btn-open-height').addEventListener('click', () => {
     const currentPotential = getBarrierPotential();
     const entry = window.prompt(
-      'Enter barrier potential V₀ (0.10 to 10.00):',
+      'Enter barrier potential V₀ in eV (0.10 to 10.00):',
       currentPotential.toFixed(2)
     );
     if (entry === null) return;
