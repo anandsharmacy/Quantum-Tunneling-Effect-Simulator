@@ -160,39 +160,6 @@
           <span class="quick-param-value">V₀ = <span id="v0-live">1.00</span></span>
         </button>
 
-        <!-- SPEED — live +/- control -->
-        <div class="height-btn-group speed-btn-group">
-          <div class="speed-label">
-            <span
-              style="font-size: 0.65rem; letter-spacing: 0.06em; opacity: 0.85"
-              >SPEED</span
-            >
-            <span class="v0-display"><span id="spd-live">4</span>x</span>
-          </div>
-          <div class="height-actions">
-            <button
-              class="h-btn s-btn-dec"
-              id="btn-dec-speed"
-              title="Decrease speed"
-            >
-              <div class="flex-col-center">
-                <span class="text-lg">−</span>
-                <span>Slower</span>
-              </div>
-            </button>
-            <button
-              class="h-btn s-btn-inc"
-              id="btn-inc-speed"
-              title="Increase speed"
-            >
-              <div class="flex-col-center">
-                <span class="text-lg">+</span>
-                <span>Faster</span>
-              </div>
-            </button>
-          </div>
-        </div>
-
         <div class="btn-group">
           <button class="rbtn gray rbtn-sm" id="btn-zoom-in">Zoom In</button>
           <button class="rbtn gray rbtn-sm" id="btn-zoom-out">Zoom Out</button>
@@ -264,7 +231,7 @@
           />
         </div>
         <div class="mrow">
-          <label>Sim speed (steps/frame)</label>
+          <label>Sim speed (steps/frame) <span id="spd-live">4</span>x</label>
           <input type="number" id="i-spd" min="1" max="16" step="1" value="4" />
         </div>
         <div class="mactions">

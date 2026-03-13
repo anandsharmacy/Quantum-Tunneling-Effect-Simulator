@@ -9,7 +9,6 @@ import {
   zoomIn,
   zoomOut,
   recenter,
-  changeSpeed,
   applyWidth,
   applyMode,
   resetSim,
@@ -137,14 +136,6 @@ function updateQuickParameterDisplays() {
     if (Math.abs(delta) > 1e-9) showHeightToast(delta);
     updateQuickParameterDisplays();
   });
-
-  // Speed controls
-  document
-    .getElementById('btn-dec-speed')
-    .addEventListener('click', () => changeSpeed(-1));
-  document
-    .getElementById('btn-inc-speed')
-    .addEventListener('click', () => changeSpeed(+1));
 
   // Viewport controls
   const btnZoomIn = document.getElementById('btn-zoom-in');
