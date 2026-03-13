@@ -184,6 +184,24 @@
           Particle energy (eV)
           <span class="quick-param-value" id="pe-live">0.0549</span>
         </button>
+
+        <div class="quick-speed-panel speed-slider-control">
+          <div class="quick-speed-title">Speed <span class="speed-live-value" id="spd-live-main">4</span>x</div>
+          <div class="speed-range-wrap">
+            <div class="speed-range">
+              <input type="range" id="i-spd-main" min="1" max="7" step="1" value="4" />
+            </div>
+            <ul class="speed-range-labels">
+              <li class="active selected" data-speed="1">Normal</li>
+              <li data-speed="2">2x</li>
+              <li data-speed="3">3x</li>
+              <li data-speed="4">4x</li>
+              <li data-speed="5">5x</li>
+              <li data-speed="6">6x</li>
+              <li data-speed="7">7x</li>
+            </ul>
+          </div>
+        </div>
       </aside>
     </main>
 
@@ -232,7 +250,20 @@
         </div>
         <div class="mrow">
           <label>Sim speed (steps/frame) <span id="spd-live">4</span>x</label>
-          <input type="number" id="i-spd" min="1" max="16" step="1" value="4" />
+          <div class="speed-range-wrap speed-slider-control">
+            <div class="speed-range">
+              <input type="range" id="i-spd" min="1" max="7" step="1" value="4" />
+            </div>
+            <ul class="speed-range-labels">
+              <li class="active selected" data-speed="1">Normal</li>
+              <li data-speed="2">2x</li>
+              <li data-speed="3">3x</li>
+              <li data-speed="4">4x</li>
+              <li data-speed="5">5x</li>
+              <li data-speed="6">6x</li>
+              <li data-speed="7">7x</li>
+            </ul>
+          </div>
         </div>
         <div class="mactions">
           <button class="mok" id="btn-apply-width">Apply</button>

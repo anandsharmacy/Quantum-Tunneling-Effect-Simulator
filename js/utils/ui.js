@@ -18,6 +18,8 @@ import {
   setBarrierWidthNm,
   setParticleEnergyEv,
   setBarrierPotential,
+  getSimulationSpeed,
+  setSimulationSpeed,
   k0,
   V0_,
   setRunning,
@@ -84,6 +86,57 @@ function updateQuickParameterDisplays() {
   if (potentialValue) potentialValue.textContent = getBarrierPotential().toFixed(2);
 }
 
+function initSpeedSlider() {
+  const controls = Array.from(document.querySelectorAll('.speed-slider-control'));
+  if (!controls.length) return;
+
+  const renderControl = (control, currentSpeed) => {
+    const range = control.querySelector('input[type="range"]');
+    const rangeWrap = control.querySelector('.speed-range');
+    const labels = Array.from(control.querySelectorAll('.speed-range-labels li'));
+    if (!range || !rangeWrap) return;
+
+    const min = Number(range.min);
+    const max = Number(range.max);
+    range.value = String(currentSpeed);
+    const percent = ((currentSpeed - min) / (max - min)) * 100;
+    rangeWrap.style.background = `linear-gradient(to right, var(--blue) 0%, var(--blue) ${percent}%, #d3d9e2 ${percent}%, #d3d9e2 100%)`;
+
+    labels.forEach((labelEl) => {
+      const labelSpeed = Number(labelEl.dataset.speed);
+      labelEl.classList.remove('active', 'selected');
+      if (labelSpeed <= currentSpeed) labelEl.classList.add('selected');
+      if (labelSpeed === currentSpeed) labelEl.classList.add('active');
+    });
+  };
+
+  const renderAll = () => {
+    const currentSpeed = getSimulationSpeed();
+    controls.forEach((control) => renderControl(control, currentSpeed));
+  };
+
+  controls.forEach((control) => {
+    const range = control.querySelector('input[type="range"]');
+    const labels = Array.from(control.querySelectorAll('.speed-range-labels li'));
+    if (!range) return;
+
+    range.addEventListener('input', () => {
+      setSimulationSpeed(Number(range.value));
+      renderAll();
+    });
+
+    labels.forEach((labelEl) => {
+      labelEl.addEventListener('click', () => {
+        const speed = Number(labelEl.dataset.speed);
+        setSimulationSpeed(speed);
+        renderAll();
+      });
+    });
+  });
+
+  renderAll();
+}
+
 // Initialize UI immediately since script is loaded with defer
 (async function initUI() {
   // Load components first
@@ -102,6 +155,7 @@ function updateQuickParameterDisplays() {
 
   // Initialise simulation core
   initSimulation();
+  initSpeedSlider();
   updateQuickParameterDisplays();
   loop();
 
@@ -262,7 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'i-Vw', min: 2, max: 60, fallback: 20, decimals: 1 },
     { id: 'i-Eev', min: 0.001, max: 50.0, fallback: 0.0549, decimals: 4 },
     { id: 'i-sig', min: 2, max: 14, fallback: 5, decimals: 1 },
-    { id: 'i-spd', min: 1, max: 16, fallback: 4, integer: true },
   ];
 
   numberConfig.forEach((cfg) => {

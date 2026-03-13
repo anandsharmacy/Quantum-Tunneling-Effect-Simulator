@@ -20,7 +20,7 @@ const LIMITS = {
     max: 50.0,
   },
   sigma: { min: 2, max: 14 },
-  speed: { min: 1, max: 16 },
+  speed: { min: 1, max: 7 },
 };
 
 function clamp(value, min, max) {
@@ -56,18 +56,29 @@ function nmToInternalWidth(widthNm) {
   return widthNm / L0_NM;
 }
 
+function syncSpeedControls() {
+  const speedModal = document.getElementById('i-spd');
+  const speedMain = document.getElementById('i-spd-main');
+  const speedLive = document.getElementById('spd-live');
+  const speedLiveMain = document.getElementById('spd-live-main');
+
+  if (speedModal) speedModal.value = String(stepsPerFrame);
+  if (speedMain) speedMain.value = String(stepsPerFrame);
+  if (speedLive) speedLive.textContent = String(stepsPerFrame);
+  if (speedLiveMain) speedLiveMain.textContent = String(stepsPerFrame);
+}
+
 export function syncWidthModalFields() {
   const energyEv = k0ToEnergyEv(k0);
   const widthNm = internalWidthToNm(Vw_);
   const energyField = document.getElementById('i-Eev');
   const widthField = document.getElementById('i-Vw');
   const sigmaField = document.getElementById('i-sig');
-  const speedField = document.getElementById('i-spd');
 
   if (energyField) energyField.value = energyEv.toFixed(4);
   if (widthField) widthField.value = widthNm.toFixed(1);
   if (sigmaField) sigmaField.value = sigma.toFixed(1);
-  if (speedField) speedField.value = stepsPerFrame;
+  syncSpeedControls();
 }
 
 export function getBarrierWidthNm() {
@@ -116,6 +127,18 @@ export function setBarrierPotential(nextPotential) {
   buildV();
   buildCN();
   return V0_;
+}
+
+export function getSimulationSpeed() {
+  return stepsPerFrame;
+}
+
+export function setSimulationSpeed(nextSpeed) {
+  stepsPerFrame = Math.round(
+    clamp(toNumber(nextSpeed, stepsPerFrame), LIMITS.speed.min, LIMITS.speed.max)
+  );
+  syncSpeedControls();
+  return stepsPerFrame;
 }
 
 let view_x_min = x_min,
@@ -571,10 +594,7 @@ export function initSimulation() {
 }
 
 export function changeSpeed(delta) {
-  stepsPerFrame = Math.max(LIMITS.speed.min, Math.min(LIMITS.speed.max, stepsPerFrame + delta));
-  document.getElementById('spd-live').textContent = stepsPerFrame;
-  const speedField = document.getElementById('i-spd');
-  if (speedField) speedField.value = stepsPerFrame;
+  setSimulationSpeed(stepsPerFrame + delta);
 }
 
 export function applyWidth() {
@@ -593,9 +613,7 @@ export function applyWidth() {
   Vw_ = nmToInternalWidth(widthNm);
   k0 = energyEvToK0(energyEv);
   sigma = nextSigma;
-  stepsPerFrame = nextSpeed;
-
-  document.getElementById('spd-live').textContent = stepsPerFrame;
+  setSimulationSpeed(nextSpeed);
   syncWidthModalFields();
 
   buildV();
@@ -621,7 +639,7 @@ export function resetSim() {
   recenter(); // Reset zoom
 
   document.getElementById('v0-live').textContent = V0_.toFixed(2);
-  document.getElementById('spd-live').textContent = stepsPerFrame;
+  syncSpeedControls();
 
   document.getElementById('i-pot').value = pot_type;
   syncWidthModalFields();

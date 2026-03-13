@@ -485,6 +485,29 @@ canvas {
   color: rgba(255, 255, 255, 0.92);
 }
 
+.quick-speed-panel {
+  background: var(--gray);
+  border-radius: 14px;
+  padding: 10px 12px 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.quick-speed-title {
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.quick-speed-panel .speed-range-labels {
+  margin-top: 12px;
+}
+
+.quick-speed-panel .speed-range-labels li {
+  font-size: 0.58rem;
+}
+
 /* ═══ HEIGHT BUTTON — split +/- design ═══ */
 .height-btn-group {
   display: flex;
@@ -892,6 +915,108 @@ input[type='number'] {
 
 input[type='number']:focus {
   border-color: var(--red);
+}
+
+.speed-range-wrap {
+  margin-top: 4px;
+}
+
+.speed-range {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--blue) 0%, var(--blue) 50%, #d3d9e2 50%, #d3d9e2 100%);
+}
+
+.speed-range input[type='range'] {
+  width: 100%;
+  position: absolute;
+  top: 1px;
+  left: 0;
+  height: 0;
+  -webkit-appearance: none;
+  background: transparent;
+}
+
+.speed-range input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+  border: 0;
+}
+
+.speed-range input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+  border: 0;
+}
+
+.speed-range input[type='range']::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 2px;
+  background: transparent;
+}
+
+.speed-range input[type='range']::-moz-range-track {
+  width: 100%;
+  height: 2px;
+  background: transparent;
+}
+
+.speed-range input[type='range']:focus {
+  outline: none;
+}
+
+.speed-range-labels {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
+}
+
+.speed-range-labels li {
+  position: relative;
+  text-align: center;
+  color: var(--text3);
+  font-size: 0.64rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.speed-range-labels li::before {
+  position: absolute;
+  top: -17px;
+  right: 0;
+  left: 0;
+  content: '';
+  margin: 0 auto;
+  width: 7px;
+  height: 7px;
+  background: #b2bcca;
+  border-radius: 50%;
+}
+
+.speed-range-labels .active {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.speed-range-labels .selected::before {
+  background: var(--blue);
+}
+
+.speed-range-labels .active.selected::before {
+  display: none;
 }
 
 select {
