@@ -5,13 +5,18 @@
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint .",
-    "prepare": "npm run format && npm run lint"
+    "prepare": "npm run format && npm run lint",
+    "test": "vitest --run"
   },
-  "author": "NMIMS",
+  "type": "module",
+  "author": "ANAND",
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@fast-check/vitest": "^0.3.0",
     "eslint": "^10.0.2",
-    "prettier": "^3.8.1"
+    "fast-check": "^4.6.0",
+    "prettier": "^3.8.1",
+    "vitest": "^4.1.0"
   }
 }

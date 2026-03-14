@@ -302,6 +302,15 @@ export function stepSim() {
   step++;
 }
 
+const NICE_STEPS = [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10];
+const TARGET_TICKS = 8;
+
+export function computeYTickStep(ymax) {
+  if (ymax <= 0.15) return 0.05;
+  const rawStep = (2 * ymax) / TARGET_TICKS;
+  return NICE_STEPS.find(s => s >= rawStep) ?? NICE_STEPS[NICE_STEPS.length - 1];
+}
+
 export function draw() {
   const W = cssWidth || canvas.width,
     H = cssHeight || canvas.height;
@@ -345,7 +354,7 @@ export function draw() {
     ctx.lineTo(px, 18 + PH);
     ctx.stroke();
   }
-  const yTS = ymax > 0.15 ? 0.1 : 0.05;
+  const yTS = computeYTickStep(ymax);
   for (let yv = Math.ceil(ymin / yTS) * yTS; yv <= ymax + 0.001; yv += yTS) {
     const py = toY(yv);
     ctx.beginPath();
